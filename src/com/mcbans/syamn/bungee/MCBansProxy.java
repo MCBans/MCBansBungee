@@ -7,30 +7,21 @@ package com.mcbans.syamn.bungee;
 import static net.md_5.bungee.Logger.$;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
 
 import net.md_5.bungee.plugin.JavaPlugin;
 import net.md_5.bungee.plugin.LoginEvent;
-
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * MCBansProxy (MCBansProxy.java)
  */
 public class MCBansProxy extends JavaPlugin{
-    private static final String logPrefix = "[MCBansProxy] ";
+    public static final String logPrefix = "[MCBansProxy] ";
+    private MCBansConfiguration confManager;
     
     // config
     private String apiKey;
@@ -39,59 +30,22 @@ public class MCBansProxy extends JavaPlugin{
     private int timeout;
     private boolean failsafe;
     
-    
     @Override
     public void onEnable(){
-        loadConfig();
+        confManager = new MCBansConfiguration(this);
+        confManager.loadConfig();
+        getConfigs();
         $().info(logPrefix + "MCBansProxy plugin enabled!");
     }
     
-    private void loadConfig(){
-        try{
-            File dir = new File("plugins", "MCBansProxy");
-            dir.mkdir();
-            File file = new File(dir, "config.yml");
-            if (!file.exists()){
-                createConfig(file);
-            }
-            DumperOptions options = new DumperOptions();
-            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            Yaml yaml = new Yaml(options);
-            Map<String, Object> config;
-            try (InputStream is = new FileInputStream(file)){
-                config = (Map) yaml.load(is);
-            }
-            if (config == null){
-                throw new IllegalStateException("null config map!");
-            }
-            
-            apiKey = config.get("apiKey").toString();
-            isDebug = "true".equals(config.get("isDebug").toString().toLowerCase(Locale.ENGLISH));
-            minRep = Integer.parseInt(config.get("minRep").toString());
-            timeout = Integer.parseInt(config.get("timeout").toString());
-            failsafe = "true".equals(config.get("failsafe").toString().toLowerCase(Locale.ENGLISH));
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }
-    
-    private void createConfig(final File file){
-        try{
-            Map def = new LinkedHashMap<String, Object>();
-            def.put("apiKey", "");
-            def.put("isDebug", "false");
-            def.put("minRep", "3");
-            def.put("timeout", "10");
-            def.put("failsafe", "false");
-            
-            file.createNewFile();
-            try (FileWriter wr = new FileWriter(file)){
-                (new Yaml()).dump(def, wr);
-            }
-            $().info(logPrefix + "config.yml not found! Created default config.yml!");
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
+    private void getConfigs(){
+        apiKey = confManager.get("apiKey", "").trim();
+        minRep = confManager.get("minRep", 3);
+        timeout = confManager.get("timeout", 3);
+        isDebug = confManager.get("isDebug", false);
+        failsafe = confManager.get("failsafe", false);
+        //isDebug = "true".equals(config.get("isDebug").toString().toLowerCase(Locale.ENGLISH));
+        //failsafe = "true".equals(config.get("failsafe").toString().toLowerCase(Locale.ENGLISH));
     }
     
     private void debug(final String msg){
