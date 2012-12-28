@@ -6,23 +6,97 @@ package com.mcbans.syamn.bungee;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.swing.DebugGraphics;
 
 import net.md_5.bungee.plugin.JavaPlugin;
 import net.md_5.bungee.plugin.LoginEvent;
+
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * MCBansProxy (MCBansProxy.java)
  */
 public class MCBansProxy extends JavaPlugin{
+    // config
+    private String apiKey;
+    private boolean isDebug;
+    private int minRep;
+    private int timeout;
+    private boolean failsafe;
+    
+    
     @Override
     public void onEnable(){
+        loadConfig();
         System.out.println("MCBansProxy plugin enabled!");
-        //File dir = new File("MCBansProxy");
+    }
+    
+    private void loadConfig(){
+        try{
+            File dir = new File("plugins", "MCBansProxy");
+            dir.mkdir();
+            File file = new File(dir, "config.yml");
+            if (!file.exists()){
+                createConfig(file);
+            }
+            DumperOptions options = new DumperOptions();
+            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            Yaml yaml = new Yaml(options);
+            Map<String, Object> config;
+            try (InputStream is = new FileInputStream(file)){
+                config = (Map) yaml.load(is);
+            }
+            if (config == null){
+                throw new IllegalStateException("null config map!");
+            }
+            
+            apiKey = config.get("apiKey").toString();
+            isDebug = "true".equals(config.get("isDebug").toString().toLowerCase(Locale.ENGLISH));
+            minRep = Integer.parseInt(config.get("minRep").toString());
+            timeout = Integer.parseInt(config.get("timeout").toString());
+            failsafe = "true".equals(config.get("failsafe").toString().toLowerCase(Locale.ENGLISH));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private void createConfig(final File file){
+        try{
+            Map def = new LinkedHashMap<String, Object>();
+            def.put("apiKey", "");
+            def.put("isDebug", "false");
+            def.put("minRep", "3");
+            def.put("timeout", "10");
+            def.put("failsafe", "false");
+            
+            file.createNewFile();
+            try (FileWriter wr = new FileWriter(file)){
+                (new Yaml()).dump(def, wr);
+            }
+            System.out.println("config.yml not found! Created default config.yml!");
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private void debug(final String msg){
+        if (isDebug){
+            System.out.println("[DEBUG] " + msg);
+        }
     }
     
     @Override
@@ -30,16 +104,12 @@ public class MCBansProxy extends JavaPlugin{
         if (event.isCancelled()) return;
         
         try{
-            /*final String uriStr = "http://" + plugin.apiServer + "/v2/" + config.getApiKey() + "/login/"
-                    + URLEncoder.encode(event.getName(), "UTF-8") + "/"
-                    + URLEncoder.encode(String.valueOf(event.getAddress().getHostAddress()), "UTF-8");
-                    */
-            final String uriStr = "http://api.mcbans.com/v2/your_api_key_here/login/"
+            final String uriStr = "http://api.mcbans.com/v2/" + apiKey + "/login/"
                     + URLEncoder.encode(event.getUsername(), "UTF-8") + "/"
                     + URLEncoder.encode(String.valueOf(event.getAddress().getHostAddress()), "UTF-8");
             final URLConnection conn = new URL(uriStr).openConnection();
-            conn.setConnectTimeout(10 * 1000); //config.getTimeoutInSec() * 1000
-            conn.setReadTimeout(10 * 1000); //config.getTimeoutInSec() * 1000
+            conn.setConnectTimeout(timeout * 1000);
+            conn.setReadTimeout(timeout * 1000);
             conn.setUseCaches(false);
             
             BufferedReader br = null;
@@ -51,10 +121,17 @@ public class MCBansProxy extends JavaPlugin{
                 if (br != null) br.close();
             }
             if (response == null){
-                System.out.println("Null response! Check passed player: " + event.getUsername());
+                if (failsafe){
+                    System.out.println("Null response! Kicked player: " + event.getUsername());
+                    event.setCancelled(true);
+                    event.setCancelReason("MCBans service unavailable!");
+                }else{
+                    System.out.println("Null response! Check passed player: " + event.getUsername());
+                }
                 return;
             }
             
+            debug("Response: " + response);
             String[] s = response.split(";");
             if (s.length == 6 || s.length == 7) {
                 // check banned
@@ -64,20 +141,19 @@ public class MCBansProxy extends JavaPlugin{
                     return;
                 }
                 // check reputation
-                else if (3 > Double.valueOf(s[2])) { //config.getMinRep()
+                else if (minRep > Double.valueOf(s[2])) {
                     event.setCancelled(true);
                     event.setCancelReason("Too Low Rep!");
                     return;
                 }
                 // check alternate accounts
-                else if (5 < Integer.valueOf(s[3])) {// config.isEnableMaxAlts() && config.getMaxAlts() < Integer.valueOf(s[3])
+                else if (false && 5 < Integer.valueOf(s[3])) {// TODO config.isEnableMaxAlts() && config.getMaxAlts() < Integer.valueOf(s[3])
                     event.setCancelled(true);
                     event.setCancelReason("Too Many Alt Accounts!");
                     return;
                 }
                 // check passed, put data to playerCache
                 else{
-                    HashMap<String, String> tmp = new HashMap<String, String>();
                     if(s[0].equals("b")){
                         System.out.println(event.getUsername() + " has previous ban(s)!");
                     }
@@ -91,19 +167,35 @@ public class MCBansProxy extends JavaPlugin{
                         System.out.println(s[5] + " open dispute(s)!");
                     }
                 }
-                System.out.println(event.getUsername() + " authenticated with " + s[2] + " rep");
+                debug(event.getUsername() + " authenticated with " + s[2] + " rep");
             }else{
                 if (response.toString().contains("Server Disabled")) {
                     System.out.println("This Server Disabled by MCBans Administration!");
                     return;
                 }
-                System.out.println("Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
+                if (failsafe){
+                    System.out.println("Null response! Kicked player: " + event.getUsername());
+                    event.setCancelled(true);
+                    event.setCancelReason("MCBans service unavailable!");
+                }else{
+                    System.out.println("Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
+                }
                 System.out.println("Response: " + response);
                 return;
             }
-            
+        }catch (SocketTimeoutException ex){
+            System.out.println("Cannot connect MCBans API server: timeout");
+            if (failsafe){
+                event.setCancelled(true);
+                event.setCancelReason("MCBans service unavailable!");
+            }
         }catch (Exception ex){
-            ex.printStackTrace();
+            System.out.println("Cannot connect MCBans API server!");
+            if (failsafe){
+                event.setCancelled(true);
+                event.setCancelReason("MCBans service unavailable!");
+            }
+            if (isDebug) ex.printStackTrace();
         }
     }
 }
