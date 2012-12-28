@@ -53,4 +53,4 @@ failsafe: false
 # isDebug:
 #   Enable additional debug messages throughout the plugin
 #   DEFAULT: false
-isDebug: true
+isDebug: false
