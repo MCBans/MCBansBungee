@@ -13,6 +13,7 @@ apiKey: ''
 #   Minimum reputation a user may have before being disallowed access to the server.
 #   DEFAULT: 3 (-1 to disable)
 minRep: 3
+minRepMessage: 'Your reputation is below this servers threshold!'
 
 #########################################################
 # Alternate Account Limiting (Premium server only!)
@@ -30,6 +31,7 @@ enableMaxAlts: false
 #   Maximum number of alternate accounts allowed before denying user
 #   DEFAULT: 2
 maxAlts: 2
+maxAltsMessage: 'You have more alt accounts than this server allows!'
 
 #########################################################
 # Miscellaneous Settings
@@ -40,6 +42,7 @@ maxAlts: 2
 #   Timeout (in seconds) value of connecting mcbans API server while player joining the server.
 #   DEFAULT: 10 (10 Seconds)
 timeout: 10
+unavailableMessage: 'Unavailable MCBans Service! Please try again later!'
 
 # failsafe:
 #   If set to true, disallow access to the server when can't auth players,

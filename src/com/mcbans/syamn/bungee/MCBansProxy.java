@@ -24,7 +24,7 @@ public class MCBansProxy extends JavaPlugin{
     private MCBansConfiguration confManager;
     
     // config
-    private String apiKey;
+    private String apiKey, minRepMsg, maxAltsMsg, unavailable;
     private int minRep, maxAlts, timeout;
     private boolean failsafe, isDebug, enableMaxAlts;
     
@@ -39,9 +39,12 @@ public class MCBansProxy extends JavaPlugin{
     private void getConfigs(){
         apiKey = confManager.get("apiKey", "").trim();
         minRep = confManager.get("minRep", 3);
+        minRepMsg = confManager.get("minRepMessage", "Your reputation is below this servers threshold!");
         enableMaxAlts = confManager.get("enableMaxAlts", false);
         maxAlts = confManager.get("maxAlts", 2);
+        maxAltsMsg = confManager.get("maxAltsMessage", "You have more alt accounts than this server allows!");
         timeout = confManager.get("timeout", 3);
+        unavailable = confManager.get("unavailableMessage", "Unavailable MCBans Service! Please try again later!");
         isDebug = confManager.get("isDebug", false);
         failsafe = confManager.get("failsafe", false);
     }
@@ -96,13 +99,13 @@ public class MCBansProxy extends JavaPlugin{
                 // check reputation
                 else if (minRep > Double.valueOf(s[2])) {
                     event.setCancelled(true);
-                    event.setCancelReason("Too Low Rep!");
+                    event.setCancelReason(minRepMsg);
                     return;
                 }
                 // check alternate accounts
                 else if (enableMaxAlts && maxAlts < Integer.valueOf(s[3])) {
                     event.setCancelled(true);
-                    event.setCancelReason("Too Many Alt Accounts!");
+                    event.setCancelReason(maxAltsMsg);
                     return;
                 }
                 // check passed, put data to playerCache
@@ -129,7 +132,7 @@ public class MCBansProxy extends JavaPlugin{
                 if (failsafe){
                     $().info(logPrefix + "Null response! Kicked player: " + event.getUsername());
                     event.setCancelled(true);
-                    event.setCancelReason("MCBans service unavailable!");
+                    event.setCancelReason(unavailable);
                 }else{
                     $().info(logPrefix + "Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
                 }
@@ -140,13 +143,13 @@ public class MCBansProxy extends JavaPlugin{
             $().info(logPrefix + "Cannot connect MCBans API server: timeout");
             if (failsafe){
                 event.setCancelled(true);
-                event.setCancelReason("MCBans service unavailable!");
+                event.setCancelReason(unavailable);
             }
         }catch (Exception ex){
             $().info(logPrefix + "Cannot connect MCBans API server!");
             if (failsafe){
                 event.setCancelled(true);
-                event.setCancelReason("MCBans service unavailable!");
+                event.setCancelReason(unavailable);
             }
             if (isDebug) ex.printStackTrace();
         }
