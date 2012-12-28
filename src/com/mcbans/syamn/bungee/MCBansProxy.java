@@ -4,6 +4,8 @@
  */
 package com.mcbans.syamn.bungee;
 
+import static net.md_5.bungee.Logger.$;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,12 +16,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.swing.DebugGraphics;
 
 import net.md_5.bungee.plugin.JavaPlugin;
 import net.md_5.bungee.plugin.LoginEvent;
@@ -31,6 +30,8 @@ import org.yaml.snakeyaml.Yaml;
  * MCBansProxy (MCBansProxy.java)
  */
 public class MCBansProxy extends JavaPlugin{
+    private static final String logPrefix = "[MCBansProxy] ";
+    
     // config
     private String apiKey;
     private boolean isDebug;
@@ -42,7 +43,7 @@ public class MCBansProxy extends JavaPlugin{
     @Override
     public void onEnable(){
         loadConfig();
-        System.out.println("MCBansProxy plugin enabled!");
+        $().info(logPrefix + "MCBansProxy plugin enabled!");
     }
     
     private void loadConfig(){
@@ -87,7 +88,7 @@ public class MCBansProxy extends JavaPlugin{
             try (FileWriter wr = new FileWriter(file)){
                 (new Yaml()).dump(def, wr);
             }
-            System.out.println("config.yml not found! Created default config.yml!");
+            $().info(logPrefix + "config.yml not found! Created default config.yml!");
         }catch (Exception ex){
             ex.printStackTrace();
         }
@@ -95,7 +96,7 @@ public class MCBansProxy extends JavaPlugin{
     
     private void debug(final String msg){
         if (isDebug){
-            System.out.println("[DEBUG] " + msg);
+            $().info(logPrefix + "[DEBUG] " + msg);
         }
     }
     
@@ -122,11 +123,11 @@ public class MCBansProxy extends JavaPlugin{
             }
             if (response == null){
                 if (failsafe){
-                    System.out.println("Null response! Kicked player: " + event.getUsername());
+                    $().info("Null response! Kicked player: " + event.getUsername());
                     event.setCancelled(true);
                     event.setCancelReason("MCBans service unavailable!");
                 }else{
-                    System.out.println("Null response! Check passed player: " + event.getUsername());
+                    $().info(logPrefix + "Null response! Check passed player: " + event.getUsername());
                 }
                 return;
             }
@@ -155,42 +156,42 @@ public class MCBansProxy extends JavaPlugin{
                 // check passed, put data to playerCache
                 else{
                     if(s[0].equals("b")){
-                        System.out.println(event.getUsername() + " has previous ban(s)!");
+                        $().info(logPrefix + event.getUsername() + " has previous ban(s)!");
                     }
                     if(Integer.parseInt(s[3])>0){
-                        System.out.println(event.getUsername() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
+                        $().info(logPrefix + event.getUsername() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
                     }
                     if(s[4].equals("y")){
-                        System.out.println(event.getUsername() + " is an MCBans.com Staff Member!");
+                        $().info(logPrefix + event.getUsername() + " is an MCBans.com Staff Member!");
                     }
                     if(Integer.parseInt(s[5])>0){
-                        System.out.println(s[5] + " open dispute(s)!");
+                        $().info(logPrefix + s[5] + " open dispute(s)!");
                     }
                 }
                 debug(event.getUsername() + " authenticated with " + s[2] + " rep");
             }else{
                 if (response.toString().contains("Server Disabled")) {
-                    System.out.println("This Server Disabled by MCBans Administration!");
+                    $().info(logPrefix + "This Server Disabled by MCBans Administration!");
                     return;
                 }
                 if (failsafe){
-                    System.out.println("Null response! Kicked player: " + event.getUsername());
+                    $().info(logPrefix + "Null response! Kicked player: " + event.getUsername());
                     event.setCancelled(true);
                     event.setCancelReason("MCBans service unavailable!");
                 }else{
-                    System.out.println("Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
+                    $().info(logPrefix + "Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
                 }
-                System.out.println("Response: " + response);
+                $().info(logPrefix + "Response: " + response);
                 return;
             }
         }catch (SocketTimeoutException ex){
-            System.out.println("Cannot connect MCBans API server: timeout");
+            $().info(logPrefix + "Cannot connect MCBans API server: timeout");
             if (failsafe){
                 event.setCancelled(true);
                 event.setCancelReason("MCBans service unavailable!");
             }
         }catch (Exception ex){
-            System.out.println("Cannot connect MCBans API server!");
+            $().info(logPrefix + "Cannot connect MCBans API server!");
             if (failsafe){
                 event.setCancelled(true);
                 event.setCancelReason("MCBans service unavailable!");
