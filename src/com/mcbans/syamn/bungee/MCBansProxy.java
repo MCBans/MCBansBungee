@@ -25,10 +25,8 @@ public class MCBansProxy extends JavaPlugin{
     
     // config
     private String apiKey;
-    private boolean isDebug;
-    private int minRep;
-    private int timeout;
-    private boolean failsafe;
+    private int minRep, maxAlts, timeout;
+    private boolean failsafe, isDebug, enableMaxAlts;
     
     @Override
     public void onEnable(){
@@ -41,11 +39,11 @@ public class MCBansProxy extends JavaPlugin{
     private void getConfigs(){
         apiKey = confManager.get("apiKey", "").trim();
         minRep = confManager.get("minRep", 3);
+        enableMaxAlts = confManager.get("enableMaxAlts", false);
+        maxAlts = confManager.get("maxAlts", 2);
         timeout = confManager.get("timeout", 3);
         isDebug = confManager.get("isDebug", false);
         failsafe = confManager.get("failsafe", false);
-        //isDebug = "true".equals(config.get("isDebug").toString().toLowerCase(Locale.ENGLISH));
-        //failsafe = "true".equals(config.get("failsafe").toString().toLowerCase(Locale.ENGLISH));
     }
     
     private void debug(final String msg){
@@ -102,7 +100,7 @@ public class MCBansProxy extends JavaPlugin{
                     return;
                 }
                 // check alternate accounts
-                else if (false && 5 < Integer.valueOf(s[3])) {// TODO config.isEnableMaxAlts() && config.getMaxAlts() < Integer.valueOf(s[3])
+                else if (enableMaxAlts && maxAlts < Integer.valueOf(s[3])) {
                     event.setCancelled(true);
                     event.setCancelReason("Too Many Alt Accounts!");
                     return;
