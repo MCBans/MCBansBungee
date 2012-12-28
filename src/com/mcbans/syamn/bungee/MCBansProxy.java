@@ -23,6 +23,8 @@ public class MCBansProxy extends JavaPlugin{
     public static final String logPrefix = "[MCBansProxy] ";
     private MCBansConfiguration confManager;
     
+    private boolean isValidKey = false;
+    
     // config
     private String apiKey, minRepMsg, maxAltsMsg, unavailable;
     private int minRep, maxAlts, timeout;
@@ -47,6 +49,14 @@ public class MCBansProxy extends JavaPlugin{
         unavailable = confManager.get("unavailableMessage", "Unavailable MCBans Service! Please try again later!");
         isDebug = confManager.get("isDebug", false);
         failsafe = confManager.get("failsafe", false);
+        
+        // check API key
+        if (apiKey.length() != 40){
+            isValidKey = false;
+            $().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
+        }else{
+            isValidKey = true;
+        }
     }
     
     private void debug(final String msg){
@@ -58,6 +68,11 @@ public class MCBansProxy extends JavaPlugin{
     @Override
     public void onLogin(final LoginEvent event){
         if (event.isCancelled()) return;
+        
+        if (!isValidKey){
+            $().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
+            return;
+        }
         
         try{
             final String uriStr = "http://api.mcbans.com/v2/" + apiKey + "/login/"
