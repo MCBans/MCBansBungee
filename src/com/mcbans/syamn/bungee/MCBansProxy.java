@@ -85,7 +85,7 @@ public class MCBansProxy extends JavaPlugin{
                         System.out.println(event.getUsername() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
                     }
                     if(s[4].equals("y")){
-                        System.out.println(event.getUsername() + " is an MCBansProxy.com Staff Member!");
+                        System.out.println(event.getUsername() + " is an MCBans.com Staff Member!");
                     }
                     if(Integer.parseInt(s[5])>0){
                         System.out.println(s[5] + " open dispute(s)!");
@@ -94,7 +94,7 @@ public class MCBansProxy extends JavaPlugin{
                 System.out.println(event.getUsername() + " authenticated with " + s[2] + " rep");
             }else{
                 if (response.toString().contains("Server Disabled")) {
-                    System.out.println("This Server Disabled by MCBansProxy Administration!");
+                    System.out.println("This Server Disabled by MCBans Administration!");
                     return;
                 }
                 System.out.println("Invalid response!(" + s.length + ") Check passed player: " + event.getUsername());
