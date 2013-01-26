@@ -16,21 +16,23 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
+import net.md_5.bungee.api.plugin.Plugin;
+
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import static net.md_5.bungee.Logger.$;
-import net.md_5.bungee.plugin.JavaPlugin;
+//import net.md_5.bungee.plugin.JavaPlugin;
 
 /**
  * MCBansConfiguration (MCBansConfiguration.java)
  */
 public class MCBansConfiguration {
     private static final String logPrefix = MCBansProxy.logPrefix;
-    private JavaPlugin plugin;
+    private Plugin plugin;
     Map<String, Object> config;
     
-    MCBansConfiguration(final JavaPlugin plugin){
+    MCBansConfiguration(final Plugin plugin){
         this.plugin = plugin;
     }
     
