@@ -15,13 +15,13 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-
+import java.util.logging.Level;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import static net.md_5.bungee.Logger.$;
 //import net.md_5.bungee.plugin.JavaPlugin;
 
 /**
@@ -44,7 +44,7 @@ public class MCBansConfiguration {
             File file = new File(dir, "config.yml");
             if (!file.exists()){
                 extractResource("/config.yml", dir, false);
-                $().info(logPrefix + "config.yml not found! Created default config.yml!");
+                ProxyServer.getInstance().getLogger().log(Level.SEVERE, logPrefix + "config.yml not found! Created default config.yml!");
             }
             
             DumperOptions options = new DumperOptions();
@@ -63,6 +63,7 @@ public class MCBansConfiguration {
         }
     }
     
+    @SuppressWarnings("unchecked")
     <T> T get(String path, T def){
         if (!config.containsKey(path)){
             config.put(path, def);
@@ -78,7 +79,7 @@ public class MCBansConfiguration {
             String fileName = new File(from).getName();
             of = new File(to, fileName);
         } else if (!of.isFile()) {
-            $().warning(logPrefix + "Not a file: " + of);
+        	ProxyServer.getInstance().getLogger().log(Level.WARNING, logPrefix + "Not a file: " + of);
             return;
         }
         
@@ -91,13 +92,14 @@ public class MCBansConfiguration {
         InputStream in = null;
         InputStreamReader reader = null;
         OutputStreamWriter writer = null;
-        DataInputStream dis = null;
+        @SuppressWarnings("unused")
+		DataInputStream dis = null;
         
         try {
             // get inside jar resource uri
             URL res = plugin.getClass().getResource(from);
             if (res == null){
-                $().warning(logPrefix + "Can't find " + from + " in plugin Jar file");
+            	ProxyServer.getInstance().getLogger().log(Level.WARNING, logPrefix + "Can't find " + from + " in plugin Jar file");
                 return;
             }
             URLConnection resConn = res.openConnection();
@@ -106,7 +108,7 @@ public class MCBansConfiguration {
             // input resource
             in = resConn.getInputStream();
             if (in == null){
-                $().warning(logPrefix + "Can't get input stream from " + res);
+            	ProxyServer.getInstance().getLogger().log(Level.WARNING, logPrefix + "Can't get input stream from " + res);
                 return;
             }
             
