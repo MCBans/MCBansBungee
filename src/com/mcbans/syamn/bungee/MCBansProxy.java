@@ -4,18 +4,16 @@
  */
 package com.mcbans.syamn.bungee;
 
-import static net.md_5.bungee.Logger.$;
+import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
-
-//import net.md_5.bungee.plugin.JavaPlugin;
-//import net.md_5.bungee.plugin.LoginEvent;
 
 /**
  * MCBansProxy (MCBansProxy.java)
  */
 public class MCBansProxy extends Plugin{
     public static final String logPrefix = "[MCBansProxy] ";
+    private MCBansProxy plugin;
     private MCBansConfiguration confManager;
     
     boolean isValidKey = false;
@@ -25,13 +23,12 @@ public class MCBansProxy extends Plugin{
     int minRep, maxAlts, timeout;
     boolean failsafe, isDebug, enableMaxAlts;
     
-    @Override
     public void onEnable(){
         confManager = new MCBansConfiguration(this);
         confManager.loadConfig();
         getConfigs();
-        ProxyServer.getInstance().getPluginManager().registerListener(new LoginEventHandler(this));
-        $().info(logPrefix + "MCBansProxy plugin enabled!");
+        registerLoginListner();
+        ProxyServer.getInstance().getLogger().log(Level.INFO, logPrefix + "MCBansProxy plugin enabled!");
     }
     
     private void getConfigs(){
@@ -49,7 +46,7 @@ public class MCBansProxy extends Plugin{
         // check API key
         if (apiKey.length() != 40){
             isValidKey = false;
-            $().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
+            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Missing or invalid API Key! Please check config.yml and restart proxy!");
         }else{
             isValidKey = true;
         }
@@ -57,8 +54,12 @@ public class MCBansProxy extends Plugin{
     
     void debug(final String msg){
         if (isDebug){
-            $().info(logPrefix + "[DEBUG] " + msg);
+            ProxyServer.getInstance().getLogger().log(Level.INFO, logPrefix + "[DEBUG] " + msg);
         }
         
+    }
+    
+    public void registerLoginListner(){
+    	ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new LoginEventHandler(this));
     }
 }
