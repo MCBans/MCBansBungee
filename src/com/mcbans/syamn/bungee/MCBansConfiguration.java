@@ -4,7 +4,6 @@
  */
 package com.mcbans.syamn.bungee;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,7 +60,8 @@ public class MCBansConfiguration {
         }
     }
     
-    <T> T get(String path, T def){
+    @SuppressWarnings("unchecked")
+	<T> T get(String path, T def){
         if (!config.containsKey(path)){
             config.put(path, def);
         }
@@ -89,7 +89,6 @@ public class MCBansConfiguration {
         InputStream in = null;
         InputStreamReader reader = null;
         OutputStreamWriter writer = null;
-        DataInputStream dis = null;
         
         try {
             // get inside jar resource uri
