@@ -29,7 +29,7 @@ public class MCBansProxy extends Plugin{
         confManager = new MCBansConfiguration(this);
         confManager.loadConfig();
         getConfigs();
-        ProxyServer.getInstance().getPluginManager().registerListener(new LoginEventHandler(this));
+        ProxyServer.getInstance().getPluginManager().registerListener(this,new LoginEventHandler(this));
         ProxyServer.getInstance().getLogger().info(logPrefix + "MCBansProxy plugin enabled!");
     }
     
