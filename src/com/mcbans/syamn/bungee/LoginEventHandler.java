@@ -4,8 +4,6 @@
  */
 package com.mcbans.syamn.bungee;
 
-import static net.md_5.bungee.Logger.$;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
@@ -13,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -36,7 +35,7 @@ public class LoginEventHandler implements Listener{
         if (event.isCancelled() || pc == null) return;
         
         if (!plugin.isValidKey){
-            $().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
+            ProxyServer.getInstance().getLogger().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
             return;
         }
         
@@ -59,11 +58,11 @@ public class LoginEventHandler implements Listener{
             }
             if (response == null){
                 if (plugin.failsafe){
-                    $().info("Null response! Kicked player: " + pc.getName());
+                    ProxyServer.getInstance().getLogger().info("Null response! Kicked player: " + pc.getName());
                     event.setCancelled(true);
                     event.setCancelReason("MCBans service unavailable!");
                 }else{
-                    $().info(logPrefix + "Null response! Check passed player: " + pc.getName());
+                    ProxyServer.getInstance().getLogger().info(logPrefix + "Null response! Check passed player: " + pc.getName());
                 }
                 return;
             }
@@ -92,42 +91,42 @@ public class LoginEventHandler implements Listener{
                 // check passed, put data to playerCache
                 else{
                     if(s[0].equals("b")){
-                        $().info(logPrefix + pc.getName() + " has previous ban(s)!");
+                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " has previous ban(s)!");
                     }
                     if(Integer.parseInt(s[3])>0){
-                        $().info(logPrefix + pc.getName() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
+                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
                     }
                     if(s[4].equals("y")){
-                        $().info(logPrefix + pc.getName() + " is an MCBans.com Staff Member!");
+                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " is an MCBans.com Staff Member!");
                     }
                     if(Integer.parseInt(s[5])>0){
-                        $().info(logPrefix + s[5] + " open dispute(s)!");
+                        ProxyServer.getInstance().getLogger().info(logPrefix + s[5] + " open dispute(s)!");
                     }
                 }
                 plugin.debug(pc.getName() + " authenticated with " + s[2] + " rep");
             }else{
                 if (response.toString().contains("Server Disabled")) {
-                    $().info(logPrefix + "This Server Disabled by MCBans Administration!");
+                    ProxyServer.getInstance().getLogger().info(logPrefix + "This Server Disabled by MCBans Administration!");
                     return;
                 }
                 if (plugin.failsafe){
-                    $().info(logPrefix + "Null response! Kicked player: " + pc.getName());
+                    ProxyServer.getInstance().getLogger().info(logPrefix + "Null response! Kicked player: " + pc.getName());
                     event.setCancelled(true);
                     event.setCancelReason(plugin.unavailable);
                 }else{
-                    $().info(logPrefix + "Invalid response!(" + s.length + ") Check passed player: " + pc.getName());
+                    ProxyServer.getInstance().getLogger().info(logPrefix + "Invalid response!(" + s.length + ") Check passed player: " + pc.getName());
                 }
-                $().info(logPrefix + "Response: " + response);
+                ProxyServer.getInstance().getLogger().info(logPrefix + "Response: " + response);
                 return;
             }
         }catch (SocketTimeoutException ex){
-            $().info(logPrefix + "Cannot connect MCBans API server: timeout");
+            ProxyServer.getInstance().getLogger().info(logPrefix + "Cannot connect MCBans API server: timeout");
             if (plugin.failsafe){
                 event.setCancelled(true);
                 event.setCancelReason(plugin.unavailable);
             }
         }catch (Exception ex){
-            $().info(logPrefix + "Cannot connect MCBans API server!");
+            ProxyServer.getInstance().getLogger().info(logPrefix + "Cannot connect MCBans API server!");
             if (plugin.failsafe){
                 event.setCancelled(true);
                 event.setCancelReason(plugin.unavailable);

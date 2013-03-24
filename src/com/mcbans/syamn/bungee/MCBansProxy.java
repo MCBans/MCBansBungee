@@ -4,7 +4,6 @@
  */
 package com.mcbans.syamn.bungee;
 
-import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -30,8 +29,8 @@ public class MCBansProxy extends Plugin{
         confManager = new MCBansConfiguration(this);
         confManager.loadConfig();
         getConfigs();
-        ProxyServer.getInstance().getPluginManager().registerListener(new LoginEventHandler(this));
-        $().info(logPrefix + "MCBansProxy plugin enabled!");
+        ProxyServer.getInstance().getPluginManager().registerListener(this,new LoginEventHandler(this));
+        ProxyServer.getInstance().getLogger().info(logPrefix + "MCBansProxy plugin enabled!");
     }
     
     private void getConfigs(){
@@ -49,7 +48,7 @@ public class MCBansProxy extends Plugin{
         // check API key
         if (apiKey.length() != 40){
             isValidKey = false;
-            $().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
+            ProxyServer.getInstance().getLogger().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
         }else{
             isValidKey = true;
         }
@@ -57,7 +56,7 @@ public class MCBansProxy extends Plugin{
     
     void debug(final String msg){
         if (isDebug){
-            $().info(logPrefix + "[DEBUG] " + msg);
+        	ProxyServer.getInstance().getLogger().info(logPrefix + "[DEBUG] " + msg);
         }
         
     }
