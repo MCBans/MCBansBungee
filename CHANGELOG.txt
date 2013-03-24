@@ -1,3 +1,6 @@
+1.2:
+- Update for Bungeecord changes (Thanks to Frankrd3 and DerFlash !)
+
 1.1:
 - Support new plugin system
 
