@@ -4,6 +4,7 @@
  */
 package com.mcbans.syamn.bungee;
 
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -28,15 +29,11 @@ public class LoginEventHandler implements Listener{
     	
     	String remoteServerName = event.getTarget().getName();
     	if (plugin.checkForServersOnly.contains(remoteServerName)) {
-        	System.out.println("ServerConnectEvent: needs check");
         	String playerName = event.getPlayer().getName();
-        	String playerAddress = event.getPlayer().getAddress().getHostName();
+        	String playerHost = event.getPlayer().getAddress().getHostName();
         	
-            String cancelReason = plugin.checkMCBansForPlayer(playerName, playerAddress);
-        	System.out.println("ServerConnectEvent - cancelreason: " + cancelReason);
-            if (cancelReason != null) {
-            	event.getPlayer().disconnect(cancelReason);
-            }
+            ProxyServer.getInstance().getLogger().info(MCBansProxy.logPrefix + "ServerConnectEvent @ " + remoteServerName + " - Checking login for: " + playerName + " (" + playerHost + ")");
+        	new MCBansChecker(playerName, playerHost).start();
     	}
     }
     
@@ -46,15 +43,13 @@ public class LoginEventHandler implements Listener{
 
         final PendingConnection pc = event.getConnection();
         if (event.isCancelled() || pc == null) return;
+        
+        String playerName = pc.getName();
+        String playerHost = pc.getAddress().getHostName();
 
-    	System.out.println("LoginEvent: " + pc.getName());
-
-        String cancelReason = plugin.checkMCBansForPlayer(pc.getName(), pc.getAddress().getHostName());
-    	System.out.println("LoginEvent - cancelreason: " + cancelReason);
-        if (cancelReason != null) {
-            event.setCancelled(true);
-            event.setCancelReason(cancelReason);
-        }
+        ProxyServer.getInstance().getLogger().info(MCBansProxy.logPrefix + "GlobalConnectEvent - Checking login for: " + playerName + " (" + playerHost + ")");
+    	new MCBansChecker(playerName, playerHost).start();
     }
+    
     
 }

@@ -30,11 +30,17 @@ public class MCBansProxy extends Plugin{
     boolean failsafe, isDebug, enableMaxAlts;
     List<String> checkForServersOnly;
     
+    public static MCBansProxy plugin;
+    
     @Override
     public void onEnable(){
+    	MCBansProxy.plugin = this;
+    	
         confManager = new MCBansConfiguration(this);
         confManager.loadConfig();
+        
         getConfigs();
+        
         ProxyServer.getInstance().getPluginManager().registerListener(this,new LoginEventHandler(this));
         ProxyServer.getInstance().getLogger().info(logPrefix + "MCBansProxy plugin enabled!");
     }
@@ -61,15 +67,28 @@ public class MCBansProxy extends Plugin{
         }
     }
     
-    void debug(final String msg){
-        if (isDebug){
+    static void debug(final String msg){
+        if (MCBansProxy.plugin.isDebug){
         	ProxyServer.getInstance().getLogger().info(logPrefix + "[DEBUG] " + msg);
         }
         
     }
     
-    public String checkMCBansForPlayer(String playername, String playerHostname) {
-        
+    public static String checkMCBansForPlayer(String playername, String playerHostname) {
+        boolean isValidKey = MCBansProxy.plugin.isValidKey;
+    	boolean failsafe = MCBansProxy.plugin.failsafe;
+    	boolean enableMaxAlts = MCBansProxy.plugin.enableMaxAlts;
+    	boolean isDebug = MCBansProxy.plugin.isDebug;
+
+    	int timeout = MCBansProxy.plugin.timeout;
+    	int minRep = MCBansProxy.plugin.minRep;
+    	int maxAlts = MCBansProxy.plugin.maxAlts;
+
+        String apiKey = MCBansProxy.plugin.apiKey;
+    	String minRepMsg = MCBansProxy.plugin.minRepMsg;
+    	String maxAltsMsg = MCBansProxy.plugin.maxAltsMsg;
+    	String unavailable = MCBansProxy.plugin.unavailable;
+    	
         if (!isValidKey){
             ProxyServer.getInstance().getLogger().warning("Missing or invalid API Key! Please check config.yml and restart proxy!");
             return "Server temporarily unavailable. Contact the server administrator.";
