@@ -54,3 +54,12 @@ failsafe: false
 #   Enable additional debug messages throughout the plugin
 #   DEFAULT: false
 isDebug: false
+
+# checkForServersOnly:
+#   Uncommenting this list and adding the names of servers behind the bungeecord proxy
+#   disables the global login check and just checks when the user tries to connect to one
+#   of the specified servers and kicks them if needed.
+#   DEFAULT: commented out (disabled)
+# checkForServersOnly:
+#  - someRemoteServer
+#  - someOtherRemoteServer
