@@ -29,7 +29,7 @@ public class LoginEventHandler implements Listener{
         this.plugin = plugin;
     }
     
-    @Subscribe
+    @EventHandler
     public void onLogin(final LoginEvent event){
         final PendingConnection pc = event.getConnection();
         if (event.isCancelled() || pc == null) return;
