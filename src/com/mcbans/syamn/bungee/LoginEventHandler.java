@@ -23,7 +23,7 @@ import net.md_5.bungee.event.EventHandler;
 public class LoginEventHandler implements Listener{
     private static final String logPrefix = MCBansProxy.logPrefix;
     private MCBansProxy plugin;
-    public final String apiRequestSuffix = "4.3.1";
+    public final String apiRequestSuffix = "4.3.2";
     
     LoginEventHandler(final MCBansProxy plugin){
         this.plugin = plugin;
@@ -41,8 +41,8 @@ public class LoginEventHandler implements Listener{
         
         try{
             final String uriStr = "http://api.mcbans.com/v3/" + plugin.apiKey + "/login/"
-                    + URLEncoder.encode(pc.getUniqueId().toString(), "UTF-8") + "/"
-                    + URLEncoder.encode(String.valueOf(pc.getAddress().getHostName()), "UTF-8") + "/"
+                    + URLEncoder.encode(pc.getName(), "UTF-8") + "/"
+                    + URLEncoder.encode(String.valueOf(pc.getAddress().getAddress()), "UTF-8") + "/"
                     + apiRequestSuffix;
             final URLConnection conn = new URL(uriStr).openConnection();
             
