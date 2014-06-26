@@ -4,13 +4,16 @@
  */
 package com.mcbans.syamn.bungee;
 
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -23,7 +26,7 @@ import net.md_5.bungee.event.EventHandler;
 public class LoginEventHandler implements Listener{
     private static final String logPrefix = MCBansProxy.logPrefix;
     private MCBansProxy plugin;
-    public final String apiRequestSuffix = "4.3.2";
+    public final String apiRequestSuffix = "4.3.4";
     
     LoginEventHandler(final MCBansProxy plugin){
         this.plugin = plugin;
@@ -41,7 +44,7 @@ public class LoginEventHandler implements Listener{
         
         try{
             final String uriStr = "http://api.mcbans.com/v3/" + plugin.apiKey + "/login/"
-                    + URLEncoder.encode(pc.getName(), "UTF-8") + "/"
+                    + URLEncoder.encode(pc.getUUID().toString().replaceAll("-", ""), "UTF-8") + "/"
                     + URLEncoder.encode(String.valueOf(pc.getAddress().getAddress()), "UTF-8") + "/"
                     + apiRequestSuffix;
             final URLConnection conn = new URL(uriStr).openConnection();
@@ -71,41 +74,41 @@ public class LoginEventHandler implements Listener{
             
             plugin.debug("Response: " + response);
             String[] s = response.split(";");
-            if (s.length == 6 || s.length == 7) {
-                // check banned
-                if (s[0].equals("l") || s[0].equals("g") || s[0].equals("t") || s[0].equals("i") || s[0].equals("s")) {
-                    event.setCancelled(true);
-                    event.setCancelReason(s[1]);
-                    return;
-                }
-                // check reputation
-                else if (plugin.minRep > Double.valueOf(s[2])) {
+            if (s.length >= 5) {
+	            if(s.length>=2){
+	            	if (s[0].equals("l") || s[0].equals("g") || s[0].equals("t") || s[0].equals("i") || s[0].equals("s")) {
+	                    event.setCancelled(true);
+	                    String[] reasonData = s[1].split("\\$");
+	                    
+	                    event.setCancelReason(ChatColor.YELLOW+"Reason: "+ChatColor.RED+reasonData[0]+"\n"+ChatColor.YELLOW+"Ban from: "+ChatColor.WHITE+reasonData[1]+"\n"+ChatColor.YELLOW+"Ban Type: "+((reasonData[3].equalsIgnoreCase("global"))?ChatColor.GOLD:ChatColor.GRAY)+reasonData[3]+"\n"+ChatColor.AQUA+"http://mcbans.com/ban/"+reasonData[2]);
+	                    return;
+	                }
+	            }
+	            if (plugin.minRep > Double.valueOf(s[2])) {
                     event.setCancelled(true);
                     event.setCancelReason(plugin.minRepMsg);
                     return;
                 }
-                // check alternate accounts
-                else if (plugin.enableMaxAlts && plugin.maxAlts < Integer.valueOf(s[3])) {
-                    event.setCancelled(true);
-                    event.setCancelReason(plugin.maxAltsMsg);
-                    return;
+	            if(Integer.parseInt(s[3]) > 0){
+	            	if (plugin.enableMaxAlts && plugin.maxAlts < Integer.valueOf(s[3])) {
+	                    event.setCancelled(true);
+	                    event.setCancelReason(plugin.maxAltsMsg);
+	                    return;
+	                }
+	            }
+	            if(s[0].equals("b")){
+                    ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " has previous ban(s)!");
                 }
-                // check passed, put data to playerCache
-                else{
-                    if(s[0].equals("b")){
-                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " has previous ban(s)!");
-                    }
-                    if(Integer.parseInt(s[3])>0){
-                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
-                    }
-                    if(s[4].equals("y")){
-                        ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " is an MCBans.com Staff Member!");
-                    }
-                    if(Integer.parseInt(s[5])>0){
-                        ProxyServer.getInstance().getLogger().info(logPrefix + s[5] + " open dispute(s)!");
-                    }
+                if(Integer.parseInt(s[3])>0){
+                    ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " may has " + s[3] + " alt account(s)![" + s[6] + "]");
                 }
-                plugin.debug(pc.getName() + " authenticated with " + s[2] + " rep");
+                if(s[4].equals("y")){
+                    ProxyServer.getInstance().getLogger().info(logPrefix + pc.getName() + " is an MCBans.com Staff Member!");
+                }
+                if(Integer.parseInt(s[5])>0){
+                    ProxyServer.getInstance().getLogger().info(logPrefix + s[5] + " open dispute(s)!");
+                }
+	            plugin.debug(pc.getName() + " authenticated with " + s[2] + " rep");
             }else{
                 if (response.toString().contains("Server Disabled")) {
                     ProxyServer.getInstance().getLogger().info(logPrefix + "This Server Disabled by MCBans Administration!");
