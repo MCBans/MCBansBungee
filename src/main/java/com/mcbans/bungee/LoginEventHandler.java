@@ -33,7 +33,7 @@ import net.md_5.bungee.event.EventHandler;
 public class LoginEventHandler implements Listener {
   private static final String logPrefix = MCBansProxy.logPrefix;
   private MCBansProxy plugin;
-  public final String apiRequestSuffix = "4.3.4";
+  public final String apiRequestSuffix = "2.0.1";
 
   LoginEventHandler(final MCBansProxy plugin) {
     this.plugin = plugin;
