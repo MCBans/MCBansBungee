@@ -62,7 +62,7 @@ public class LoginEventHandler implements Listener {
 
       if (banResponse.getBan() != null) {
         event.setCancelled(true);
-        event.setCancelReason(new TextComponent(ChatColor.YELLOW + "Reason: " + ChatColor.RED + banResponse.getBan().getReason() + "\n" + ChatColor.YELLOW + "Ban from: " + ChatColor.WHITE + ((banResponse.getBan().getAdmin() != null) ? banResponse.getBan().getAdmin().getName() : "") + "\n" + ChatColor.YELLOW + "Ban Type: " + ((banResponse.getBan().getType().equalsIgnoreCase("global")) ? ChatColor.GOLD : ChatColor.GRAY) + banResponse.getBan().getServer().getAddress() + "\n" + ChatColor.AQUA + "http://mcbans.com/ban/" + banResponse.getBan().getId()));
+        event.setCancelReason(new TextComponent(ChatColor.YELLOW + "Reason: " + ChatColor.RED + banResponse.getBan().getReason() + "\n" + ChatColor.YELLOW + "Ban from: " + ChatColor.WHITE + ((banResponse.getBan().getAdmin() != null) ? banResponse.getBan().getAdmin().getName() : "") + "\n" + ChatColor.YELLOW + "Ban Type: " + ((banResponse.getBan().getType().equalsIgnoreCase("global")) ? ChatColor.GOLD : ChatColor.GRAY) + banResponse.getBan().getType() + "\n" + ChatColor.AQUA + "http://mcbans.com/ban/" + banResponse.getBan().getId()));
         return;
       }
 
