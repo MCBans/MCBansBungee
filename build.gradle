@@ -1,0 +1,18 @@
+
+
+apply plugin: 'java'
+apply plugin: 'java-library'
+
+group 'com.mcbans.bungee'
+version '2.0.1'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://papermc.io/repo/repository/maven-public/'
+    }
+}
+
+dependencies {
+    implementation('io.github.waterfallmc:waterfall-api:1.18-R0.1-SNAPSHOT')
+}
